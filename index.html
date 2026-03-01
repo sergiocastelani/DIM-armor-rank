@@ -29,11 +29,38 @@
             background: #ecf0f1;
             border-radius: 6px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 15px;
         }
         input[type="file"] {
+            display: none;
+        }
+        .custom-file-upload {
+            display: inline-block;
+            padding: 12px 24px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            border: 2px solid transparent;
+        }
+        .custom-file-upload:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        .custom-file-upload:active {
+            transform: translateY(0px);
+        }
+        .file-name {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #555;
+            font-style: italic;
         }
         button {
             background-color: #3498db;
@@ -139,7 +166,12 @@
     <h1>Armor Ranking</h1>
     
     <div class="controls">
-        <input type="file" id="csvFileInput" accept=".csv" />
+        <span>Select a CSV file from DIM Organizer to start processing:</span>
+        <label for="csvFileInput" class="custom-file-upload">
+            📁 Choose CSV File
+        </label>
+        <input type="file" id="csvFileInput" accept=".csv" onchange="updateFileName()"/>
+        <div id="fileName" class="file-name">No file chosen</div>
         <button onclick="processCSV()">Start Processing</button>
     </div>
 
@@ -148,6 +180,20 @@
 
 <script>
     const statNames = ['weapons', 'health', 'class', 'grenade', 'super', 'melee'];
+
+    function updateFileName() {
+        const fileInput = document.getElementById('csvFileInput');
+        const fileNameDisplay = document.getElementById('fileName');
+        if (fileInput.files.length > 0) {
+            fileNameDisplay.textContent = fileInput.files[0].name;
+            fileNameDisplay.style.color = '#28a745';
+            fileNameDisplay.style.fontWeight = 'bold';
+        } else {
+            fileNameDisplay.textContent = 'No file chosen';
+            fileNameDisplay.style.color = '#555';
+            fileNameDisplay.style.fontWeight = 'normal';
+        }
+    }
 
     function processCSV() {
         const fileInput = document.getElementById('csvFileInput');
