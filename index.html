@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,15 +55,15 @@
             font-weight: bold;
             color: #e74c3c;
         }
-        /* Estilos da Árvore */
-        .familia-tree {
+        /* Tree Styles */
+        .family-tree {
             margin-bottom: 30px;
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 8px;
             overflow: hidden;
         }
-        .vencedor-node {
+        .winner-node {
             background-color: #d4edda;
             padding: 15px;
             cursor: pointer;
@@ -75,23 +75,23 @@
             transition: background-color 0.2s;
             position: relative;
         }
-        .vencedor-node:hover {
+        .winner-node:hover {
             background-color: #c3e6cb;
         }
-        .vencedor-node::after {
-            content: "📋 Clique para copiar os IDs";
+        .winner-node::after {
+            content: "📋 Click to copy the DIM IDs of all items in this category";
             position: absolute;
             right: 15px;
             font-size: 0.85em;
             color: #155724;
             opacity: 0.7;
         }
-        .vencedor-checkbox {
+        .winner-checkbox {
             transform: scale(1.5);
             margin-right: 5px;
             cursor: pointer;
         }
-        .vencedor-badge {
+        .winner-badge {
             background: #28a745;
             color: white;
             padding: 4px 8px;
@@ -99,12 +99,12 @@
             font-size: 0.8em;
             font-weight: bold;
         }
-        .vencedor-stats {
+        .winner-stats {
             display: flex;
             gap: 15px;
             font-size: 0.95em;
         }
-        .obsoletos-children {
+        .obsolete-children {
             padding: 15px 15px 15px 40px;
             background-color: #fafafa;
             border-left: 3px dashed #bdc3c7;
@@ -136,23 +136,23 @@
 <body>
 
 <div class="container">
-    <h1>Localizador de Peças Obsoletas</h1>
+    <h1>Armor Ranking</h1>
     
     <div class="controls">
         <input type="file" id="csvFileInput" accept=".csv" />
-        <button onclick="processarCSV()">Começar Processamento</button>
+        <button onclick="processCSV()">Start Processing</button>
     </div>
 
-    <div id="resultadoContainer"></div>
+    <div id="resultContainer"></div>
 </div>
 
 <script>
     const statNames = ['weapons', 'health', 'class', 'grenade', 'super', 'melee'];
 
-    function processarCSV() {
+    function processCSV() {
         const fileInput = document.getElementById('csvFileInput');
         if (fileInput.files.length === 0) {
-            alert('Por favor, selecione um arquivo CSV primeiro.');
+            alert('Please select a CSV file from DIM Organizer first.');
             return;
         }
 
@@ -161,44 +161,44 @@
 
         reader.onload = function(e) {
             const text = e.target.result;
-            processarDados(text);
+            processData(text);
         };
 
         reader.readAsText(file);
     }
 
-    function processarDados(csvText) {
-        const linhas = parseCSV(csvText);
-        if (linhas.length < 2) {
-            alert("O arquivo CSV parece estar vazio ou não possui dados suficientes.");
+    function processData(csvText) {
+        const lines = parseCSV(csvText);
+        if (lines.length < 2) {
+            alert("The CSV file appears to be empty or does not have enough data.");
             return;
         }
 
-        const cabecalhos = linhas[0];
+        const headers = lines[0];
         const items = [];
 
-        for (let i = 1; i < linhas.length; i++) {
-            if (linhas[i].length === 0 || (linhas[i].length === 1 && linhas[i][0] === "")) continue;
+        for (let i = 1; i < lines.length; i++) {
+            if (lines[i].length === 0 || (lines[i].length === 1 && lines[i][0] === "")) continue;
             let obj = {};
-            cabecalhos.forEach((header, index) => {
-                obj[header] = linhas[i][index] ? linhas[i][index].trim() : '';
+            headers.forEach((header, index) => {
+                obj[header] = lines[i][index] ? lines[i][index].trim() : '';
             });
             items.push(obj);
         }
 
-        // 1. Remover todos os itens com raridade "Exotic"
-        const itemsNaoExoticos = items.filter(item => {
-            const tier = obterValorColuna(item, ['rarity', 'raridade']);
+        // 1. Remove all items with "Exotic" rarity
+        const nonExoticItems = items.filter(item => {
+            const tier = getColumnValue(item, ['rarity', 'raridade']);
             return tier.toLowerCase() !== 'exotic';
         });
 
-        const grupos = {};
+        const groups = {};
 
-        // 2, 3, 4, 5. Agrupamento
-        itemsNaoExoticos.forEach(item => {
+        // 2, 3, 4, 5. Grouping
+        nonExoticItems.forEach(item => {
             let stats = statNames.map(sn => {
-                let valor = parseFloat(obterValorColunaBase(item, sn) || 0);
-                return { name: sn, value: valor };
+                let value = parseFloat(getBaseColumnValue(item, sn) || 0);
+                return { name: sn, value: value };
             });
 
             stats.sort((a, b) => b.value - a.value);
@@ -207,136 +207,136 @@
             let top2 = stats[1].name;
             let top3 = stats[2].name;
 
-            let tipo = obterValorColuna(item, ['type', 'tipo']);
-            let seasonMod = obterValorColuna(item, ['seasonal mod', 'tipo']);
-            let equipavel = obterValorColuna(item, ['equippable', 'personagem', 'class']);
+            let type = getColumnValue(item, ['type', 'tipo']);
+            let seasonMod = getColumnValue(item, ['seasonal mod', 'tipo']);
+            let equippable = getColumnValue(item, ['equippable', 'personagem', 'class']);
 
-            let chaveGrupo = `${equipavel}|${tipo}|${seasonMod}|${top1}|${top2}|${top3}`;
+            let groupKey = `${equippable}|${type}|${seasonMod}|${top1}|${top2}|${top3}`;
 
-            if (!grupos[chaveGrupo]) {
-                grupos[chaveGrupo] = [];
+            if (!groups[groupKey]) {
+                groups[groupKey] = [];
             }
-            grupos[chaveGrupo].push(item);
+            groups[groupKey].push(item);
         });
 
-        const familias = [];
+        const families = [];
 
-        // 6 e 7. Separando Vencedor e Obsoletos
-        for (let chave in grupos) {
-            let grupo = grupos[chave];
+        // 6 and 7. Separating Winner and Obsolete items
+        for (let key in groups) {
+            let group = groups[key];
 
-            // Só processamos grupos que tenham pelo menos 2 itens (1 vencedor e 1+ obsoletos)
-            if (grupo.length > 1) {
-                grupo.sort((a, b) => {
-                    let totalA = parseFloat(obterValorColunaBase(a, 'total') || 0);
-                    let totalB = parseFloat(obterValorColunaBase(b, 'total') || 0);
-                    return totalB - totalA; // Ordem decrescente
+            // Only process groups that have at least 2 items (1 winner and 1+ obsolete)
+            if (group.length > 1) {
+                group.sort((a, b) => {
+                    let totalA = parseFloat(getBaseColumnValue(a, 'total') || 0);
+                    let totalB = parseFloat(getBaseColumnValue(b, 'total') || 0);
+                    return totalB - totalA; // Descending order
                 });
 
-                // O primeiro item é o vencedor daquela árvore
-                let vencedor = grupo[0];
-                // Os restantes são os obsoletos (nodos filhos)
-                let obsoletos = grupo.slice(1);
+                // The first item is the winner of that tree
+                let winner = group[0];
+                // The remaining ones are the obsolete items (child nodes)
+                let obsoletes = group.slice(1);
 
-                familias.push({
-                    vencedor: vencedor,
-                    obsoletos: obsoletos
+                families.push({
+                    winner: winner,
+                    obsoletes: obsoletes
                 });
             }
         }
 
-        // Ordena a lista de famílias pelo campo "Equippable" do vencedor
-        familias.sort((a, b) => {
-            let eqA = obterValorColuna(a.vencedor, ['equippable', 'personagem', 'class']);
-            let eqB = obterValorColuna(b.vencedor, ['equippable', 'personagem', 'class']);
+        // Sort the list of families by the winner's "Equippable" field
+        families.sort((a, b) => {
+            let eqA = getColumnValue(a.winner, ['equippable', 'personagem', 'class']);
+            let eqB = getColumnValue(b.winner, ['equippable', 'personagem', 'class']);
             return eqA.localeCompare(eqB);
         });
 
-        mostrarResultados(familias);
+        showResults(families);
     }
 
-    function copiarIDs(familia) {
-        const idVencedor = obterValorColuna(familia.vencedor, ['id', 'item id', 'instance id']);
-        const idsObsoletos = familia.obsoletos.map(obs => `id:${obterValorColuna(obs, ['id', 'item id', 'instance id'])}`).join(' or ');
+    function copyIDs(family) {
+        const winnerID = getColumnValue(family.winner, ['id', 'item id', 'instance id']);
+        const obsoleteIDs = family.obsoletes.map(obs => `id:${getColumnValue(obs, ['id', 'item id', 'instance id'])}`).join(' or ');
         
-        const copyString = `id:${idVencedor} or ${idsObsoletos}`;
+        const copyString = `id:${winnerID} or ${obsoleteIDs}`;
         
         navigator.clipboard.writeText(copyString).then(() => {
-            alert(`IDs copiados com sucesso!\n\n${copyString}`);
+            console.log(`IDs copied successfully!\n\n${copyString}`);
         }).catch(err => {
-            console.error('Erro ao copiar para o clipboard: ', err);
-            alert('Falha ao copiar os IDs. Verifique as permissões do navegador.');
+            console.error('Error copying to clipboard: ', err);
+            alert('Failed to copy IDs. Check browser permissions.');
         });
     }
 
-    function mostrarResultados(familias) {
-        const container = document.getElementById('resultadoContainer');
+    function showResults(families) {
+        const container = document.getElementById('resultContainer');
         container.innerHTML = '';
 
-        if (familias.length === 0) {
-            container.innerHTML = '<p>Nenhum item obsoleto encontrado com as regras especificadas.</p>';
+        if (families.length === 0) {
+            container.innerHTML = '<p>No obsolete items found with the specified rules.</p>';
             return;
         }
 
-        let totalObsoletos = familias.reduce((acc, f) => acc + f.obsoletos.length, 0);
+        let totalObsoletes = families.reduce((acc, f) => acc + f.obsoletes.length, 0);
 
         const summary = document.createElement('div');
         summary.className = 'summary';
-        summary.innerText = `Árvores geradas: ${familias.length} | Total de itens obsoletos: ${totalObsoletos}`;
+        summary.innerText = `Trees generated: ${families.length} | Total obsolete items: ${totalObsoletes}`;
         container.appendChild(summary);
 
-        familias.forEach((familia, index) => {
-            const v = familia.vencedor;
-            const checkboxId = `chk-vencedor-${index}`;
+        families.forEach((family, index) => {
+            const w = family.winner;
+            const checkboxId = `chk-winner-${index}`;
             
-            // Container da árvore
+            // Tree container
             const treeContainer = document.createElement('div');
-            treeContainer.className = 'familia-tree';
+            treeContainer.className = 'family-tree';
 
-            // Nodo Raiz (Vencedor)
+            // Root Node (Winner)
             const rootNode = document.createElement('div');
-            rootNode.className = 'vencedor-node';
-            rootNode.title = "Clique para copiar o ID do vencedor e de seus obsoletos";
+            rootNode.className = 'winner-node';
+            rootNode.title = "Click to copy the winner ID and its obsolete items";
             
-            // Evento de clique para copiar e marcar o checkbox
+            // Click event to copy and mark the checkbox
             rootNode.onclick = (e) => {
-                // Marca o checkbox como true
+                // Mark the checkbox as true
                 const checkbox = document.getElementById(checkboxId);
 				if (e.target == checkbox)
 					return;
                 if(checkbox) checkbox.checked = true;
                 
-                // Se o usuário clicar direto no checkbox, evita que o alert interrompa o toggle natural
+                // If the user clicks directly on the checkbox, prevent the alert from interrupting the natural toggle
                 if (e.target.type !== 'checkbox') {
-                    copiarIDs(familia);
+                    copyIDs(family);
                 } else {
-                    // O setTimeout garante que o toggle do checkbox renderize antes do alert travar a tela
-                    setTimeout(() => copiarIDs(familia), 10);
+                    // The setTimeout ensures the checkbox toggle renders before the alert freezes the screen
+                    setTimeout(() => copyIDs(family), 10);
                 }
             };
             
             rootNode.innerHTML = `
-                <input type="checkbox" id="${checkboxId}" class="vencedor-checkbox" title="Marcado se já copiado">
-                <div class="vencedor-badge">VENCEDOR ROOT</div>
-                <div class="vencedor-stats">
-                    <strong>${obterValorColuna(v, ['name', 'nome'])}</strong> | 
-                    <span>Tipo: ${obterValorColuna(v, ['type', 'tipo'])}</span> | 
-                    <span>Equipável: ${obterValorColuna(v, ['equippable', 'personagem', 'class'])}</span> | 
-                    <span>Power: ${obterValorColuna(v, ['power', 'poder'])}</span> | 
-                    <span style="color:#d35400; font-weight:bold;">Total Base: ${obterValorColunaBase(v, 'total')}</span>
+                <input type="checkbox" id="${checkboxId}" class="winner-checkbox" title="Checked if already copied">
+                <div class="winner-badge">ROOT WINNER</div>
+                <div class="winner-stats">
+                    <strong>${getColumnValue(w, ['name', 'nome'])}</strong> | 
+                    <span>Type: ${getColumnValue(w, ['type', 'tipo'])}</span> | 
+                    <span>Equippable: ${getColumnValue(w, ['equippable', 'personagem', 'class'])}</span> | 
+                    <span>Power: ${getColumnValue(w, ['power', 'poder'])}</span> | 
+                    <span style="color:#d35400; font-weight:bold;">Total Base: ${getBaseColumnValue(w, 'total')}</span>
                 </div>
             `;
             
-            // Nodos Filhos (Obsoletos)
+            // Child Nodes (Obsolete items)
             const childrenContainer = document.createElement('div');
-            childrenContainer.className = 'obsoletos-children';
+            childrenContainer.className = 'obsolete-children';
             
             const table = document.createElement('table');
             table.innerHTML = `
                 <thead>
                     <tr>
-                        <th>Nome do Obsoleto</th>
-                        <th>Tipo</th>
+                        <th>Obsolete Name</th>
+                        <th>Type</th>
                         <th>Power</th>
                         <th>Health</th>
                         <th>Melee</th>
@@ -348,18 +348,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    ${familia.obsoletos.map(obs => `
+                    ${family.obsoletes.map(obs => `
                         <tr>
-                            <td>${obterValorColuna(obs, ['name', 'nome'])}</td>
-                            <td>${obterValorColuna(obs, ['type', 'tipo'])}</td>
-                            <td>${obterValorColuna(obs, ['power', 'poder'])}</td>
-                            <td>${obterValorColunaBase(obs, 'health')}</td>
-                            <td>${obterValorColunaBase(obs, 'melee')}</td>
-                            <td>${obterValorColunaBase(obs, 'grenade')}</td>
-                            <td>${obterValorColunaBase(obs, 'super')}</td>
-                            <td>${obterValorColunaBase(obs, 'class')}</td>
-                            <td>${obterValorColunaBase(obs, 'weapons')}</td>
-                            <td class="stat-strong">${obterValorColunaBase(obs, 'total')}</td>
+                            <td>${getColumnValue(obs, ['name', 'nome'])}</td>
+                            <td>${getColumnValue(obs, ['type', 'tipo'])}</td>
+                            <td>${getColumnValue(obs, ['power', 'poder'])}</td>
+                            <td>${getBaseColumnValue(obs, 'health')}</td>
+                            <td>${getBaseColumnValue(obs, 'melee')}</td>
+                            <td>${getBaseColumnValue(obs, 'grenade')}</td>
+                            <td>${getBaseColumnValue(obs, 'super')}</td>
+                            <td>${getBaseColumnValue(obs, 'class')}</td>
+                            <td>${getBaseColumnValue(obs, 'weapons')}</td>
+                            <td class="stat-strong">${getBaseColumnValue(obs, 'total')}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -372,25 +372,25 @@
         });
     }
 
-    // Localiza uma coluna usando sinônimos flexíveis (ex: name, nome, id)
-    function obterValorColuna(item, possiveisNomes) {
-        const chaves = Object.keys(item);
-        for (let pn of possiveisNomes) {
-            const achou = chaves.find(k => k.toLowerCase() === pn.toLowerCase());
-            if (achou) return item[achou];
+    // Locates a column using flexible synonyms (e.g., name, nome, id)
+    function getColumnValue(item, possibleNames) {
+        const keys = Object.keys(item);
+        for (let pn of possibleNames) {
+            const found = keys.find(k => k.toLowerCase() === pn.toLowerCase());
+            if (found) return item[found];
         }
         return '';
     }
 
-    function obterValorColunaBase(item, nomeDoAtributo) {
-        const chaves = Object.keys(item);
-        let chaveAlvo = chaves.find(k => k.toLowerCase().includes(nomeDoAtributo) && k.toLowerCase().includes('base'));
+    function getBaseColumnValue(item, attributeName) {
+        const keys = Object.keys(item);
+        let targetKey = keys.find(k => k.toLowerCase().includes(attributeName) && k.toLowerCase().includes('base'));
         
-        if (!chaveAlvo) {
-            chaveAlvo = chaves.find(k => k.toLowerCase().includes(nomeDoAtributo));
+        if (!targetKey) {
+            targetKey = keys.find(k => k.toLowerCase().includes(attributeName));
         }
 
-        return chaveAlvo ? item[chaveAlvo] : '0';
+        return targetKey ? item[targetKey] : '0';
     }
 
     function parseCSV(str) {
