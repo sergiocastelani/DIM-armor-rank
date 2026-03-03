@@ -356,6 +356,26 @@
         });
     }
 
+    function copyAllObsoletes(families) {
+        const allObsoleteIDs = families
+            .flatMap(family => family.obsoletes);
+        if (!allObsoleteIDs || allObsoleteIDs.length === 0) {
+            alert('No obsolete items to copy.');
+            return;
+        }
+        const allObsoleteIDsString = allObsoleteIDs
+            .map(obs => `id:${getColumnValue(obs, 'id')}`)
+            .join(' or ');
+        
+        navigator.clipboard.writeText(allObsoleteIDsString).then(() => {
+            console.log(`All obsolete IDs copied successfully!\n\n${allObsoleteIDsString}`);
+            alert(`Copied ${allObsoleteIDs.length} obsolete item IDs to clipboard!`);
+        }).catch(err => {
+            console.error('Error copying to clipboard: ', err);
+            alert('Failed to copy IDs. Check browser permissions.');
+        });
+    }
+
     function showResults(families) {
         const container = document.getElementById('resultContainer');
         container.innerHTML = '';
@@ -371,6 +391,16 @@
         summary.className = 'summary';
         summary.innerText = `Groups identified: ${families.length} | Total obsolete items: ${totalObsoletes}`;
         container.appendChild(summary);
+
+        // Add "Copy All Obsoletes" button
+        const copyAllBtn = document.createElement('button');
+        copyAllBtn.innerText = 'Copy All Obsolete Items IDs to Clipboard';
+        copyAllBtn.style.margin = '10px 0';
+        copyAllBtn.style.padding = '10px 20px';
+        copyAllBtn.style.fontSize = '14px';
+        copyAllBtn.style.cursor = 'pointer';
+        copyAllBtn.onclick = () => copyAllObsoletes(families);
+        container.appendChild(copyAllBtn);
 
         families.forEach((family, index) => {
             const w = family.winner;
