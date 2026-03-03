@@ -296,7 +296,28 @@
                     // Secondary sort by energy capacity (descending)
                     let energyA = parseFloat(getColumnValue(a, 'energy capacity') || 0);
                     let energyB = parseFloat(getColumnValue(b, 'energy capacity') || 0);
-                    return energyB - energyA;
+                    if (energyB !== energyA) {
+                        return energyB - energyA;
+                    }
+                    
+                    // Tertiary sort by top stats in order
+                    let [top1, top2, top3] = key.split('|').slice(3);
+                    
+                    let top1A = parseFloat(getBaseColumnValue(a, top1) || 0);
+                    let top1B = parseFloat(getBaseColumnValue(b, top1) || 0);
+                    if (top1B !== top1A) {
+                        return top1B - top1A;
+                    }
+                    
+                    let top2A = parseFloat(getBaseColumnValue(a, top2) || 0);
+                    let top2B = parseFloat(getBaseColumnValue(b, top2) || 0);
+                    if (top2B !== top2A) {
+                        return top2B - top2A;
+                    }
+                    
+                    let top3A = parseFloat(getBaseColumnValue(a, top3) || 0);
+                    let top3B = parseFloat(getBaseColumnValue(b, top3) || 0);
+                    return top3B - top3A;
                 });
 
                 // The first item is the winner of that tree
