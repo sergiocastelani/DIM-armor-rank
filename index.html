@@ -161,6 +161,14 @@
         .stat-cell-alignment {
             text-align: right;
         }
+        .stat-lower {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .stat-higher {
+            font-weight: bold;
+            color: #3498db;
+        }
     </style>
 </head>
 <body>
@@ -397,20 +405,39 @@
                     </tr>
                 </thead>
                 <tbody>
-                    ${family.obsoletes.map(obs => `
+                    ${family.obsoletes.map(obs => {
+                        const winnerPower = parseFloat(getColumnValue(family.winner, 'power'));
+                        const winnerHealth = parseFloat(getBaseColumnValue(family.winner, 'health'));
+                        const winnerMelee = parseFloat(getBaseColumnValue(family.winner, 'melee'));
+                        const winnerGrenade = parseFloat(getBaseColumnValue(family.winner, 'grenade'));
+                        const winnerSuper = parseFloat(getBaseColumnValue(family.winner, 'super'));
+                        const winnerClass = parseFloat(getBaseColumnValue(family.winner, 'class'));
+                        const winnerWeapons = parseFloat(getBaseColumnValue(family.winner, 'weapons'));
+                        const winnerTotal = parseFloat(getBaseColumnValue(family.winner, 'total'));
+                        
+                        const obsPower = parseFloat(getColumnValue(obs, 'power'));
+                        const obsHealth = parseFloat(getBaseColumnValue(obs, 'health'));
+                        const obsMelee = parseFloat(getBaseColumnValue(obs, 'melee'));
+                        const obsGrenade = parseFloat(getBaseColumnValue(obs, 'grenade'));
+                        const obsSuper = parseFloat(getBaseColumnValue(obs, 'super'));
+                        const obsClass = parseFloat(getBaseColumnValue(obs, 'class'));
+                        const obsWeapons = parseFloat(getBaseColumnValue(obs, 'weapons'));
+                        const obsTotal = parseFloat(getBaseColumnValue(obs, 'total'));
+                        
+                        return `
                         <tr>
                             <td>${getColumnValue(obs, 'name')}</td>
                             <td>${getColumnValue(obs, 'type')}</td>
-                            <td class="stat-cell-alignment">${getColumnValue(obs, 'power')}</td>
-                            <td class="stat-cell-alignment">${getBaseColumnValue(obs, 'melee')}</td>
-                            <td class="stat-cell-alignment">${getBaseColumnValue(obs, 'health')}</td>
-                            <td class="stat-cell-alignment">${getBaseColumnValue(obs, 'grenade')}</td>
-                            <td class="stat-cell-alignment">${getBaseColumnValue(obs, 'super')}</td>
-                            <td class="stat-cell-alignment">${getBaseColumnValue(obs, 'class')}</td>
-                            <td class="stat-cell-alignment">${getBaseColumnValue(obs, 'weapons')}</td>
-                            <td class="stat-cell-alignment stat-strong">${getBaseColumnValue(obs, 'total')}</td>
+                            <td class="stat-cell-alignment ${obsPower < winnerPower ? 'stat-lower' : (obsPower > winnerPower ? 'stat-higher' : '')}">${getColumnValue(obs, 'power')}</td>
+                            <td class="stat-cell-alignment ${obsHealth < winnerHealth ? 'stat-lower' : (obsHealth > winnerHealth ? 'stat-higher' : '')}">${getBaseColumnValue(obs, 'health')}</td>
+                            <td class="stat-cell-alignment ${obsMelee < winnerMelee ? 'stat-lower' : (obsMelee > winnerMelee ? 'stat-higher' : '')}">${getBaseColumnValue(obs, 'melee')}</td>
+                            <td class="stat-cell-alignment ${obsGrenade < winnerGrenade ? 'stat-lower' : (obsGrenade > winnerGrenade ? 'stat-higher' : '')}">${getBaseColumnValue(obs, 'grenade')}</td>
+                            <td class="stat-cell-alignment ${obsSuper < winnerSuper ? 'stat-lower' : (obsSuper > winnerSuper ? 'stat-higher' : '')}">${getBaseColumnValue(obs, 'super')}</td>
+                            <td class="stat-cell-alignment ${obsClass < winnerClass ? 'stat-lower' : (obsClass > winnerClass ? 'stat-higher' : '')}">${getBaseColumnValue(obs, 'class')}</td>
+                            <td class="stat-cell-alignment ${obsWeapons < winnerWeapons ? 'stat-lower' : (obsWeapons > winnerWeapons ? 'stat-higher' : '')}">${getBaseColumnValue(obs, 'weapons')}</td>
+                            <td class="stat-cell-alignment stat-strong ${obsTotal < winnerTotal ? 'stat-lower' : (obsTotal > winnerTotal ? 'stat-higher' : '')}">${getBaseColumnValue(obs, 'total')}</td>
                         </tr>
-                    `).join('')}
+                    `;}).join('')}
                 </tbody>
             `;
 
