@@ -287,7 +287,16 @@
                 group.sort((a, b) => {
                     let totalA = parseFloat(getBaseColumnValue(a, 'total') || 0);
                     let totalB = parseFloat(getBaseColumnValue(b, 'total') || 0);
-                    return totalB - totalA; // Descending order
+                    
+                    // Primary sort by total (descending)
+                    if (totalB !== totalA) {
+                        return totalB - totalA;
+                    }
+                    
+                    // Secondary sort by energy capacity (descending)
+                    let energyA = parseFloat(getColumnValue(a, 'energy capacity') || 0);
+                    let energyB = parseFloat(getColumnValue(b, 'energy capacity') || 0);
+                    return energyB - energyA;
                 });
 
                 // The first item is the winner of that tree
