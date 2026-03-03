@@ -328,7 +328,7 @@
 
         const summary = document.createElement('div');
         summary.className = 'summary';
-        summary.innerText = `Trees generated: ${families.length} | Total obsolete items: ${totalObsoletes}`;
+        summary.innerText = `Groups identified: ${families.length} | Total obsolete items: ${totalObsoletes}`;
         container.appendChild(summary);
 
         families.forEach((family, index) => {
@@ -363,7 +363,7 @@
             
             rootNode.innerHTML = `
                 <input type="checkbox" id="${checkboxId}" class="winner-checkbox" title="Checked if already copied">
-                <div class="winner-badge">ROOT WINNER</div>
+                <div class="winner-badge">GROUP WINNER</div>
                 <div class="winner-stats">
                     <strong>${getColumnValue(w, ['name', 'nome'])}</strong> | 
                     <span>Type: ${getColumnValue(w, ['type', 'tipo'])}</span> | 
