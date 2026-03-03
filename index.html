@@ -179,7 +179,7 @@
 </div>
 
 <script>
-    const statNames = ['weapons', 'health', 'class', 'grenade', 'super', 'melee'];
+    const statNames = ['super', 'health', 'melee', 'grenade', 'class', 'weapons'];
 
     function updateFileName() {
         const fileInput = document.getElementById('csvFileInput');
@@ -232,15 +232,15 @@
             items.push(obj);
         }
 
-        // 1. Remove all items with "Exotic" rarity
+        // Remove all items with "Exotic" rarity
         const nonExoticItems = items.filter(item => {
-            const tier = getColumnValue(item, ['rarity', 'raridade']);
+            const tier = getColumnValue(item, 'rarity');
             return tier.toLowerCase() !== 'exotic';
         });
 
         const groups = {};
 
-        // 2, 3, 4, 5. Grouping
+        // Grouping
         nonExoticItems.forEach(item => {
             let stats = statNames.map(sn => {
                 let value = parseFloat(getBaseColumnValue(item, sn) || 0);
@@ -253,9 +253,9 @@
             let top2 = stats[1].name;
             let top3 = stats[2].name;
 
-            let type = getColumnValue(item, ['type', 'tipo']);
-            let seasonMod = getColumnValue(item, ['seasonal mod', 'tipo']);
-            let equippable = getColumnValue(item, ['equippable', 'personagem', 'class']);
+            let type = getColumnValue(item, 'type');
+            let seasonMod = getColumnValue(item, 'seasonal mod');
+            let equippable = getColumnValue(item, 'equippable');
 
             let groupKey = `${equippable}|${type}|${seasonMod}|${top1}|${top2}|${top3}`;
 
@@ -267,7 +267,7 @@
 
         const families = [];
 
-        // 6 and 7. Separating Winner and Obsolete items
+        // Separating Winner and Obsolete items
         for (let key in groups) {
             let group = groups[key];
 
@@ -293,8 +293,8 @@
 
         // Sort the list of families by the winner's "Equippable" field
         families.sort((a, b) => {
-            let eqA = getColumnValue(a.winner, ['equippable', 'personagem', 'class']);
-            let eqB = getColumnValue(b.winner, ['equippable', 'personagem', 'class']);
+            let eqA = getColumnValue(a.winner, 'equippable');
+            let eqB = getColumnValue(b.winner, 'equippable');
             return eqA.localeCompare(eqB);
         });
 
@@ -302,8 +302,8 @@
     }
 
     function copyIDs(family) {
-        const winnerID = getColumnValue(family.winner, ['id', 'item id', 'instance id']);
-        const obsoleteIDs = family.obsoletes.map(obs => `id:${getColumnValue(obs, ['id', 'item id', 'instance id'])}`).join(' or ');
+        const winnerID = getColumnValue(family.winner, 'id');
+        const obsoleteIDs = family.obsoletes.map(obs => `id:${getColumnValue(obs, 'id')}`).join(' or ');
         
         const copyString = `id:${winnerID} or ${obsoleteIDs}`;
         
@@ -364,12 +364,12 @@
             rootNode.innerHTML = `
                 <input type="checkbox" id="${checkboxId}" class="winner-checkbox" title="Checked if already copied">
                 <div class="winner-badge">GROUP WINNER</div>
-                <div class="winner-stats">
-                    <strong>${getColumnValue(w, ['name', 'nome'])}</strong> | 
-                    <span>Type: ${getColumnValue(w, ['type', 'tipo'])}</span> | 
-                    <span>Equippable: ${getColumnValue(w, ['equippable', 'personagem', 'class'])}</span> | 
-                    <span>Power: ${getColumnValue(w, ['power', 'poder'])}</span> | 
-                    <span style="color:#d35400; font-weight:bold;">Total Base: ${getBaseColumnValue(w, 'total')}</span>
+                    <div class="winner-stats">
+                        <strong>${getColumnValue(w, 'name')}</strong> | 
+                        <span>Type: ${getColumnValue(w, 'type')}</span> | 
+                        <span>Equippable: ${getColumnValue(w, 'equippable')}</span> | 
+                        <span>Power: ${getColumnValue(w, 'power')}</span> | 
+                        <span style="color:#d35400; font-weight:bold;">Total Base: ${getBaseColumnValue(w, 'total')}</span>
                 </div>
             `;
             
@@ -396,9 +396,9 @@
                 <tbody>
                     ${family.obsoletes.map(obs => `
                         <tr>
-                            <td>${getColumnValue(obs, ['name', 'nome'])}</td>
-                            <td>${getColumnValue(obs, ['type', 'tipo'])}</td>
-                            <td>${getColumnValue(obs, ['power', 'poder'])}</td>
+                            <td>${getColumnValue(obs, 'name')}</td>
+                            <td>${getColumnValue(obs, 'type')}</td>
+                            <td>${getColumnValue(obs, 'power')}</td>
                             <td>${getBaseColumnValue(obs, 'health')}</td>
                             <td>${getBaseColumnValue(obs, 'melee')}</td>
                             <td>${getBaseColumnValue(obs, 'grenade')}</td>
@@ -418,13 +418,11 @@
         });
     }
 
-    // Locates a column using flexible synonyms (e.g., name, nome, id)
+    // Locates a column
     function getColumnValue(item, possibleNames) {
         const keys = Object.keys(item);
-        for (let pn of possibleNames) {
-            const found = keys.find(k => k.toLowerCase() === pn.toLowerCase());
-            if (found) return item[found];
-        }
+        const found = keys.find(k => k.toLowerCase() === possibleNames.toLowerCase());
+        if (found) return item[found];
         return '';
     }
 
