@@ -158,6 +158,9 @@
             font-weight: bold;
             color: #2c3e50;
         }
+        .stat-cell-alignment {
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -383,14 +386,14 @@
                     <tr>
                         <th>Obsolete Name</th>
                         <th>Type</th>
-                        <th>Power</th>
-                        <th>Health (${getBaseColumnValue(family.winner, 'health')})</th>
-                        <th>Melee (${getBaseColumnValue(family.winner, 'melee')})</th>
-                        <th>Grenade (${getBaseColumnValue(family.winner, 'grenade')})</th>
-                        <th>Super (${getBaseColumnValue(family.winner, 'super')})</th>
-                        <th>Class (${getBaseColumnValue(family.winner, 'class')})</th>
-                        <th>Weapons (${getBaseColumnValue(family.winner, 'weapons')})</th>
-                        <th>Total Base (${getBaseColumnValue(family.winner, 'total')})</th>
+                        <th class="stat-cell-alignment">Power (${getColumnValue(family.winner, 'power')})</th>
+                        <th class="stat-cell-alignment">Health (${getBaseColumnValue(family.winner, 'health')})</th>
+                        <th class="stat-cell-alignment">Melee (${getBaseColumnValue(family.winner, 'melee')})</th>
+                        <th class="stat-cell-alignment">Grenade (${getBaseColumnValue(family.winner, 'grenade')})</th>
+                        <th class="stat-cell-alignment">Super (${getBaseColumnValue(family.winner, 'super')})</th>
+                        <th class="stat-cell-alignment">Class (${getBaseColumnValue(family.winner, 'class')})</th>
+                        <th class="stat-cell-alignment">Weapons (${getBaseColumnValue(family.winner, 'weapons')})</th>
+                        <th class="stat-cell-alignment">Total Base (${getBaseColumnValue(family.winner, 'total')})</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -398,14 +401,14 @@
                         <tr>
                             <td>${getColumnValue(obs, 'name')}</td>
                             <td>${getColumnValue(obs, 'type')}</td>
-                            <td>${getColumnValue(obs, 'power')}</td>
-                            <td>${getBaseColumnValue(obs, 'health')}</td>
-                            <td>${getBaseColumnValue(obs, 'melee')}</td>
-                            <td>${getBaseColumnValue(obs, 'grenade')}</td>
-                            <td>${getBaseColumnValue(obs, 'super')}</td>
-                            <td>${getBaseColumnValue(obs, 'class')}</td>
-                            <td>${getBaseColumnValue(obs, 'weapons')}</td>
-                            <td class="stat-strong">${getBaseColumnValue(obs, 'total')}</td>
+                            <td class="stat-cell-alignment">${getColumnValue(obs, 'power')}</td>
+                            <td class="stat-cell-alignment">${getBaseColumnValue(obs, 'melee')}</td>
+                            <td class="stat-cell-alignment">${getBaseColumnValue(obs, 'health')}</td>
+                            <td class="stat-cell-alignment">${getBaseColumnValue(obs, 'grenade')}</td>
+                            <td class="stat-cell-alignment">${getBaseColumnValue(obs, 'super')}</td>
+                            <td class="stat-cell-alignment">${getBaseColumnValue(obs, 'class')}</td>
+                            <td class="stat-cell-alignment">${getBaseColumnValue(obs, 'weapons')}</td>
+                            <td class="stat-cell-alignment stat-strong">${getBaseColumnValue(obs, 'total')}</td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -429,11 +432,9 @@
     function getBaseColumnValue(item, attributeName) {
         const keys = Object.keys(item);
         let targetKey = keys.find(k => k.toLowerCase().includes(attributeName) && k.toLowerCase().includes('base'));
-        
         if (!targetKey) {
             targetKey = keys.find(k => k.toLowerCase().includes(attributeName));
         }
-
         return targetKey ? item[targetKey] : '0';
     }
 
